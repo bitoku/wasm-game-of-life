@@ -4,7 +4,14 @@ use cfg_if::cfg_if;
 use wasm_bindgen::prelude::*;
 use std::fmt;
 use js_sys::Math;
+use web_sys::console;
 use fixedbitset::FixedBitSet;
+
+macro_rules! log {
+    ( $( $t: tt)* ) => {
+        console::log_1(&format!( $( $t )* ).into());
+    }
+}
 
 cfg_if! {
     if #[cfg(feature = "wee_alloc")] {
@@ -67,6 +74,8 @@ impl Universe {
     }
 
     pub fn new() -> Universe {
+        utils::set_panic_hook();
+
         let width = 64;
         let height = 64;
         let size = (width * height) as usize;
