@@ -6,6 +6,7 @@ use std::fmt;
 use js_sys::Math;
 use web_sys::console;
 use fixedbitset::FixedBitSet;
+use std::ops::{Deref, DerefMut};
 
 macro_rules! log {
     ( $( $t: tt)* ) => {
@@ -22,10 +23,28 @@ cfg_if! {
 }
 
 #[wasm_bindgen]
+#[derive(Clone)]
+pub struct Cells(FixedBitSet);
+
+impl Deref for Cells {
+    type Target = FixedBitSet;
+
+    fn deref(&self) -> &FixedBitSet {
+        &self.0
+    }
+}
+
+impl DerefMut for Cells {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+#[wasm_bindgen]
 pub struct Universe {
     width: u32,
     height: u32,
-    cells: FixedBitSet,
+    cells: Cells,
 }
 
 impl Universe {
@@ -79,7 +98,7 @@ impl Universe {
         let width = 64;
         let height = 64;
         let size = (width * height) as usize;
-        let mut cells = FixedBitSet::with_capacity(size);
+        let mut cells = Cells(FixedBitSet::with_capacity(size));
 
         for i in 0..size {
             cells.set(i, Math::random() < 0.3);
@@ -94,12 +113,12 @@ impl Universe {
 
     pub fn set_width(&mut self, width: u32) {
         self.width = width;
-        self.cells = FixedBitSet::with_capacity((self.height * width) as usize);
+        self.cells = Cells(FixedBitSet::with_capacity((self.height * width) as usize));
     }
 
     pub fn set_height(&mut self, height: u32) {
         self.height = height;
-        self.cells = FixedBitSet::with_capacity((height * self.width) as usize);
+        self.cells = Cells(FixedBitSet::with_capacity((height * self.width) as usize));
     }
 
     pub fn width(&self) -> u32 {
@@ -116,7 +135,7 @@ impl Universe {
 }
 
 impl Universe {
-    pub fn get_cells(&self) -> &FixedBitSet {
+    pub fn get_cells(&self) -> &Cells {
         &self.cells
     }
 
