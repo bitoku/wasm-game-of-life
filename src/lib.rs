@@ -132,6 +132,11 @@ impl Universe {
     pub fn cells(&self) -> *const u32 {
         self.cells.as_slice().as_ptr()
     }
+
+    pub fn toggle_cell(&mut self, row: u32, column: u32) {
+        let idx = self.get_index(row, column);
+        self.cells.toggle(idx);
+    }
 }
 
 impl Universe {
